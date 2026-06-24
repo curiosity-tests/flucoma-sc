@@ -11,7 +11,7 @@ FluidMFCC : FluidRTMultiOutUGen {
 
 	init {arg ...theInputs;
 		inputs = theInputs;
-		^this.initOutputs(inputs.at(4),rate);//this instantiate the number of output from the maxNumBands in the multiNew order
+		^this.initOutputs(inputs.at(2),rate);//this instantiate the number of output from the maxNumCoeffs in the multiNew order
 	}
 
 	checkInputs {
