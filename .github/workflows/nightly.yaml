@@ -1,16 +1,35 @@
 name: nightly
+run-name: "nightly ${{ inputs.leg || github.event_name }} ${{ inputs.racecar_run }}"
 
 on:
   workflow_dispatch:
+    inputs:
+      leg:
+        description: "baseline (uninstrumented) or instrumented (under chalk/curiosity)"
+        type: choice
+        options: [instrumented, baseline]
+        default: baseline
+      profile:
+        description: "CrashOverride chalk profile"
+        type: string
+        default: curiosity-tests-racecar
+      racecar_run:
+        description: "racecar correlation token, echoed into the run name"
+        type: string
+        default: ""
   push:
     branches: [ main, ci/** ]
 
+
+env:
+  CHALK_ON: ${{ inputs.leg == 'instrumented' }}
 concurrency:
   group: environment-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   macbuild:
+    if: false   # racecar: non-Linux runner, not measured here
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
@@ -38,6 +57,7 @@ jobs:
           path: install/FluCoMa-SC-Mac-nightly.dmg
 
   winbuild:
+    if: false   # racecar: non-Linux runner, not measured here
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -77,6 +97,7 @@ jobs:
           path: install/FluCoMa-SC-Linux-x64-nightly.tar.gz
   
   release:
+    if: false   # racecar: scan/report job, not a build
     runs-on: ubuntu-22.04
     needs: [macbuild, winbuild, linuxbuild]
     steps:
