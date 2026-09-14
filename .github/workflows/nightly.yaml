@@ -21,6 +21,9 @@ on:
     branches: [ main, ci/** ]
 
 
+permissions:
+  contents: read
+  id-token: write
 env:
   CHALK_ON: ${{ inputs.leg == 'instrumented' }}
 concurrency:
@@ -32,7 +35,16 @@ jobs:
     if: false   # racecar: non-Linux runner, not measured here
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: crashappsec/action-checkout@main
+        with:
+          chalk: ${{ env.CHALK_ON }}
+          profile: ${{ inputs.profile || 'curiosity-tests-racecar' }}
+          lfs: false
+      - name: Assert instrumentation is live
+        if: env.CHALK_ON == 'true'
+        continue-on-error: true
+        run: |
+          test -n "${CURIOSITY_ROOT:-}" || { echo "::warning::CURIOSITY_ROOT unset in this step - in a container job the observables install on the host"; exit 1; }
       - uses: flucoma/actions/env@main
       - uses: flucoma/actions/sc@main
         with:
@@ -60,7 +72,16 @@ jobs:
     if: false   # racecar: non-Linux runner, not measured here
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: crashappsec/action-checkout@main
+        with:
+          chalk: ${{ env.CHALK_ON }}
+          profile: ${{ inputs.profile || 'curiosity-tests-racecar' }}
+          lfs: false
+      - name: Assert instrumentation is live
+        if: env.CHALK_ON == 'true'
+        continue-on-error: true
+        run: |
+          test -n "${CURIOSITY_ROOT:-}" || { echo "::warning::CURIOSITY_ROOT unset in this step - in a container job the observables install on the host"; exit 1; }
       - uses: flucoma/actions/env@main
       - uses: flucoma/actions/sc@main
         with:
@@ -82,7 +103,16 @@ jobs:
   linuxbuild:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: crashappsec/action-checkout@main
+        with:
+          chalk: ${{ env.CHALK_ON }}
+          profile: ${{ inputs.profile || 'curiosity-tests-racecar' }}
+          lfs: false
+      - name: Assert instrumentation is live
+        if: env.CHALK_ON == 'true'
+        continue-on-error: true
+        run: |
+          test -n "${CURIOSITY_ROOT:-}" || { echo "::warning::CURIOSITY_ROOT unset in this step - in a container job the observables install on the host"; exit 1; }
       - uses: flucoma/actions/env@main
       - uses: flucoma/actions/sc@main
         with:
